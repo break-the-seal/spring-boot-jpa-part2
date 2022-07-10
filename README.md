@@ -39,3 +39,16 @@ implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0")
     - **rollback**을 안하기에 `@Transactional` 지정한 method(테스트)가 끝난 경우에 **쓰기지연** 저장소에서 쿼리가 날라가게 됨
   - insert 쿼리만 있고 select 쿼리 없는 이유 
     - 1차 캐시에 이미 member entity 저장, 이후 조회에서는 id값 가지고 1차 캐시에서 조회하기에 select 쿼리 X
+
+<br>
+
+## 📌 Section 2. 도메인 분석 설계 
+
+### 도메인 모델과 테이블 설계
+> 외래키가 있는 곳을 연관관계의 주인으로 정하자.  
+> - Team:Member = 1:N 관계에서 일대다 단방향인 경우(Team -> Member)
+> - Team entity: List<Member>에 @JoinColumn("TEAM_ID")
+> - MEMBER table: TEAM_ID(FK) 외래키 관리
+> - 외래키 관리하는 테이블 반대편인 Team entity에서 연관관계 주인으로 설정되어 있음
+> - 이러면 persist할 때 Member, Team 각각 insert -> Member FK update 쿼리 추가해야 함
+> - Team entity에서 관리하지 않는 Member 테이블의 FK가 update되는 문제
