@@ -52,3 +52,21 @@ implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0")
 > - 외래키 관리하는 테이블 반대편인 Team entity에서 연관관계 주인으로 설정되어 있음
 > - 이러면 persist할 때 Member, Team 각각 insert -> Member FK update 쿼리 추가해야 함
 > - Team entity에서 관리하지 않는 Member 테이블의 FK가 update되는 문제
+
+
+### 엔티티 클래스 개발 1
+```kotlin
+@OneToMany(mappedBy = "member")
+val orders: MutableList<Order> = mutableListOf()
+```
+- 반대편 연관관계 주인이 되는 곳과 매핑(read-only 개념)
+- 여기서 orders 변경해도 order 테이블의 FK 변경 X
+
+```kotlin
+// Order.kt
+@OneToOne
+val delivery: Delivery
+```
+- `one to one`인 경우 주로 많이 사용되는 entity(`Order`)에다가 OneToOne 연관관계 주인 설정
+- 
+### 엔티티 클래스 개발 2
