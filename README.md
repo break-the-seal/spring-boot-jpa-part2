@@ -76,3 +76,8 @@ val delivery: Delivery
 
 val items: MutableList<Item> = mutableListOf()
 ```
+- 값 타입
+  - 값 타입(`Address`)은 변경 불가능하게 설계해야 한다. (코틀린에서 고민해야되는 부분)
+  - setter X, getter와 생성자만 허용 
+  - 기본 생성자가 있어야 JPA가 reflection 사용 가능
+    - `protected`로 허용, 이것도 코틀린에서 고민해야 되는 부분
