@@ -7,5 +7,5 @@ import javax.persistence.Entity
 @DiscriminatorValue("B")
 data class Book(
     val artist: String,
-    val etc: String
+    val isbn: String
 ): Item()

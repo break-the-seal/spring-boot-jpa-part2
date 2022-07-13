@@ -70,3 +70,9 @@ val delivery: Delivery
 - `one to one`인 경우 주로 많이 사용되는 entity(`Order`)에다가 OneToOne 연관관계 주인 설정
 - 
 ### 엔티티 클래스 개발 2
+- 다대다 연관관계 매핑(실무에선 사용하지 말자)
+```kotlin
+@ManyToMany
+
+val items: MutableList<Item> = mutableListOf()
+```

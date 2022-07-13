@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest
 internal class MemberRepositoryTest {
 
-    @Autowired
+   /* @Autowired
     private lateinit var memberRepository: MemberRepository
 
     @Test
@@ -35,5 +35,5 @@ internal class MemberRepositoryTest {
         // 1차 캐시에 이미 member entity 저장,
         // 이후 조회에서는 id값 가지고 1차 캐시에서 조회하기에 select 쿼리 X
         println("findMember == member : ${findMember == member}")
-    }
+    }*/
 }

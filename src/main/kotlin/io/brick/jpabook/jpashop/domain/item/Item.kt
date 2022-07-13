@@ -1,5 +1,6 @@
 package io.brick.jpabook.jpashop.domain.item
 
+import io.brick.jpabook.jpashop.domain.Category
 import javax.persistence.*
 
 @Entity
@@ -9,11 +10,14 @@ class Item {
     @Id
     @GeneratedValue
     @Column(name = "item_id")
-    val id: Long = 0L
+    var id: Long = 0L
 
-    val name: String = ""
+    var name: String = ""
 
-    val price: Int = 0
+    var price: Int = 0
 
-    val stockQuantity: Int = 0
+    var stockQuantity: Int = 0
+
+    @ManyToMany(mappedBy = "items")
+    var categories: MutableList<Category> = mutableListOf()
 }

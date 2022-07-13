@@ -7,5 +7,5 @@ import javax.persistence.Entity
 @DiscriminatorValue("M")
 data class Movie(
     val director: String,
-    val etc: String
+    val actor: String
 ): Item()
