@@ -3,18 +3,18 @@ package io.brick.jpabook.jpashop.domain
 import javax.persistence.*
 
 @Entity
-data class Delivery(
+class Delivery {
     @Id
     @GeneratedValue
     @Column(name = "delivery_id")
-    val id: Long = 0L,
+    val id: Long = 0L
 
-    @OneToOne(mappedBy = "delivery")
-    val order: Order,
+    @OneToOne(mappedBy = "delivery", fetch = FetchType.LAZY)
+    var order: Order? = null
 
     @Embedded
-    val address: Address,
+    var address: Address? = null
 
     @Enumerated(EnumType.STRING)
-    val status: DeliveryStatus // READY, COMP
-)
+    var status: DeliveryStatus? = null // READY, COMP
+}

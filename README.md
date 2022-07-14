@@ -73,7 +73,6 @@ val delivery: Delivery
 - 다대다 연관관계 매핑(실무에선 사용하지 말자)
 ```kotlin
 @ManyToMany
-
 val items: MutableList<Item> = mutableListOf()
 ```
 - 값 타입
@@ -81,3 +80,22 @@ val items: MutableList<Item> = mutableListOf()
   - setter X, getter와 생성자만 허용 
   - 기본 생성자가 있어야 JPA가 reflection 사용 가능
     - `protected`로 허용, 이것도 코틀린에서 고민해야 되는 부분
+
+### 엔티티 설계시 주의점
+- Setter 사용하지 말자 (**코틀린인 경우 어떻게 작성해야 하는지 궁금**)
+- 모든 연관관계는 지연로딩으로 설정
+  - EAGER(즉시로딩) 설정은 예측이 어렵다.
+  - JPQL 사용시 N+1 문제 발생이 쉽다.
+  - 연관된 엔티티를 함께 즉시 조회해야 한다면 fetch join, entity graph 등 기능으로 할 수 있다.
+  - `@XToOne`(`ManyToOne`, `OneToOne`) 관계는 default가 EAGER라서 주의해야 한다.(LAZY로 바꿔줘야 한다.)
+- 컬렉션은 필드에서 초기화하자
+  - null safe 하다는 장점
+  - 엔티티 영속화할 때 컬렉션을 감싸서 하이버네이트 제공해주는 내장 컬렉션으로 변경해준다.
+  - 해당 컬렉션은 중간에 변경하거나 하지 말자(하이버네이트 제공 내장 컬렉션으로 동작하기에)
+
+#### 테이블, 컬럼명 생성 전략
+- `SpringPhysicalNamingStrategy` (Camel -> underscore)
+  - 논리명 생성
+    - `spring.jpa.hibernate.naming.implicit-strategy` 테이블, 칼럼명 명시하지 않으면 논리명 적용
+  - 물리명 적용
+    - `spring.jpa.hibernate.naming.physical-strategy` 모든 논리명에 적용, 실제 테이블 적용(사내 룰로 정할 수 있음)

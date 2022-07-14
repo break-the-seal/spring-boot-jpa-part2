@@ -1,28 +1,24 @@
 package io.brick.jpabook.jpashop.domain
 
 import io.brick.jpabook.jpashop.domain.item.Item
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
-data class OrderItem(
-    @Id @GeneratedValue
+class OrderItem {
+    @Id
+    @GeneratedValue
     @Column(name = "order_item_id")
-    val id: Long,
+    var id: Long = 0L
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-    val item: Item,
+    var item: Item? = null
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    val order: Order,
+    var order: Order? = null
 
-    val orderPrice: Int, // 주문 가격
+    var orderPrice: Int = 0 // 주문 가격
 
-    val count: Int // 주문 수량
-)
+    var count: Int = 0 // 주문 수량
+}
