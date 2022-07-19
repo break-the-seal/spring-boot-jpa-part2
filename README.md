@@ -99,3 +99,24 @@ val items: MutableList<Item> = mutableListOf()
     - `spring.jpa.hibernate.naming.implicit-strategy` 테이블, 칼럼명 명시하지 않으면 논리명 적용
   - 물리명 적용
     - `spring.jpa.hibernate.naming.physical-strategy` 모든 논리명에 적용, 실제 테이블 적용(사내 룰로 정할 수 있음)
+
+## 📌 Section 4. 회원 도메인 개발
+
+### 회원 기능 테스트
+- JUnit 테스트 때 `@Transactional` 걸게 되면 테스트 끝날 때 rollback 하게 된다.
+- 그렇기에 repository save를 해도 rollback 하기 때문에 실제 insert 쿼리는 작동 X
+- `@Test`에 `@Rollback(false)` 지정하거나 em을 주입받아서 `em.flush()`를 실행하면 insert 쿼리 작동하게 된다.
+
+```kotlin
+assertThrows<IllegalStateException> {
+    memberService.join(member2) // duplicate exception 발생해야 함
+}
+```
+- duplicate member 검사시 에러 발생 테스트
+- JUnit5 에서는 assertThrows를 통해 커버 가능
+  - JUnit4 `@Test(expected)`, `fail(...)` 사용 안해도 됨
+
+#### 테스트 환경 DB
+- test 패키지 안에 `resources` 폴더를 만들어서 `application.yml` 설정을 할 수 있음
+- `url: jdbc:h2:mem:test` h2 메모리 방식으로 수행 가능(gradle 설정 후)
+- 하지만 이런 설정 없이도 기본적으로 spring boot는 인메모리 방식 h2 db를 지원해준다.

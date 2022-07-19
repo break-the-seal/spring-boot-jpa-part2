@@ -7,7 +7,8 @@ import javax.persistence.PersistenceContext
 
 @Repository
 class MemberRepository(
-    @PersistenceContext
+    // spring-data-jpa에서 알아서 지원해줌 (autowired 만으로 주입 가능)
+    // @PersistenceContext
     private val em: EntityManager,
 ) {
     fun save(member: Member) {
