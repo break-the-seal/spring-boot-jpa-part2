@@ -1,6 +1,7 @@
 package io.brick.jpabook.jpashop.service
 
 import io.brick.jpabook.jpashop.domain.Member
+import io.brick.jpabook.jpashop.exception.NotFoundException
 import io.brick.jpabook.jpashop.repository.MemberRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -37,6 +38,6 @@ class MemberService(
 
     fun findOne(memberId: Long): Member {
         return memberRepository.findOne(memberId)
-            ?: throw RuntimeException("존재하지 않는 회원입니다. ${memberId}")
+            ?: throw NotFoundException("존재하지 않는 회원입니다. ${memberId}")
     }
 }

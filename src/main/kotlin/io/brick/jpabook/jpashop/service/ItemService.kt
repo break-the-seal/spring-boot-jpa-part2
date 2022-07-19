@@ -1,6 +1,7 @@
 package io.brick.jpabook.jpashop.service
 
 import io.brick.jpabook.jpashop.domain.item.Item
+import io.brick.jpabook.jpashop.exception.NotFoundException
 import io.brick.jpabook.jpashop.repository.ItemRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +22,6 @@ class ItemService(
 
     fun findOne(itemId: Long): Item {
         return itemRepository.findOne(itemId)
-            ?: throw RuntimeException("존재하지 않는 상품입니다. ${itemId}")
+            ?: throw NotFoundException("존재하지 않는 상품입니다. ${itemId}")
     }
 }

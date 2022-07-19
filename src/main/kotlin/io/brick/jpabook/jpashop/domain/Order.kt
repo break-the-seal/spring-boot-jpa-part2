@@ -9,7 +9,7 @@ class Order {
     @Id
     @GeneratedValue
     @Column(name = "order_id")
-    val id: Long = 0L
+    var id: Long? = null
 
     // 연관관계 메서드 적용 //
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,7 +22,7 @@ class Order {
 
     // Cascade: persist(order) -> orderItem persist 같이 진행해준다.
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL])
-    val orderItems: MutableList<OrderItem> = mutableListOf()
+    var orderItems: MutableList<OrderItem> = mutableListOf()
 
     // 연관관계 메서드 //
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
@@ -33,9 +33,24 @@ class Order {
             delivery.order = this
         }
 
-    val orderDate: LocalDateTime? = null
+    var orderDate: LocalDateTime? = null
 
-    val status: OrderStatus? = null // 주문상태 [ORDER, CANCEL]
+    var status: OrderStatus? = null // 주문상태 [ORDER, CANCEL]
+
+    companion object {
+        fun createOrder(member: Member, delivery: Delivery, vararg orderItems: OrderItem) {
+            val order = Order().apply {
+                this.member = member
+                this.delivery = delivery
+                orderItems.forEach { this.addOrderItem(it) }
+
+                this.status = OrderStatus.ORDER
+
+            }
+
+
+        }
+    }
 
     // 연관관계 메서드 //
     fun addOrderItem(orderItem: OrderItem) {
