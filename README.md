@@ -120,3 +120,9 @@ assertThrows<IllegalStateException> {
 - test 패키지 안에 `resources` 폴더를 만들어서 `application.yml` 설정을 할 수 있음
 - `url: jdbc:h2:mem:test` h2 메모리 방식으로 수행 가능(gradle 설정 후)
 - 하지만 이런 설정 없이도 기본적으로 spring boot는 인메모리 방식 h2 db를 지원해준다.
+
+## 📌 Section 6. 주문 도메인 개발
+
+- `CascadeType.ALL`: private owner 인 경우에만 사용
+  - ex) `Order` - `OrderItem`, `Delivery`  
+  (Delivery는 Order말고 다른 곳에서 전혀 안쓰임)

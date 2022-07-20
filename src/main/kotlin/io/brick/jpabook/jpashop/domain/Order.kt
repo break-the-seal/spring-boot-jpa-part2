@@ -22,7 +22,7 @@ class Order {
 
     // Cascade: persist(order) -> orderItem persist 같이 진행해준다.
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL])
-    var orderItems: MutableList<OrderItem> = mutableListOf()
+    var orderItems: MutableList<OrderItem> = ArrayList()
 
     // 연관관계 메서드 //
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
@@ -38,17 +38,16 @@ class Order {
     var status: OrderStatus? = null // 주문상태 [ORDER, CANCEL]
 
     companion object {
-        fun createOrder(member: Member, delivery: Delivery, vararg orderItems: OrderItem) {
-            val order = Order().apply {
+        //== 생성 메서드 ==//
+        fun createOrder(member: Member, delivery: Delivery, vararg orderItems: OrderItem): Order {
+            return Order().apply {
                 this.member = member
                 this.delivery = delivery
                 orderItems.forEach { this.addOrderItem(it) }
 
                 this.status = OrderStatus.ORDER
-
+                this.orderDate = LocalDateTime.now()
             }
-
-
         }
     }
 
@@ -56,5 +55,26 @@ class Order {
     fun addOrderItem(orderItem: OrderItem) {
         orderItems.add(orderItem)
         orderItem.order = this
+    }
+
+    //== 비즈니스 로직 ==//
+    /**
+     * 주문 취소
+     */
+    fun cancel() {
+        if (delivery?.status == DeliveryStatus.COMP) {
+            throw IllegalStateException("이미 배송완료된 상품은 취소가 불가능합니다.")
+        }
+
+        this.status = OrderStatus.CANCEL
+        orderItems.forEach { it.cancel() }
+    }
+
+    //== 조회 로직 ==//
+    /**
+     * 전체 주문 가격 조
+     */
+    fun getTotalPrice(): Int {
+        return orderItems.sumOf { it.getTotalPrice() }
     }
 }

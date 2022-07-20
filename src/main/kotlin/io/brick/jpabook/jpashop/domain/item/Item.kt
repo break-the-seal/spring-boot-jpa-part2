@@ -39,6 +39,7 @@ class Item {
         if (restStock < 0) {
             throw NotEnoughStockException("need more stock")
         }
+
         this.stockQuantity = restStock
     }
 }
