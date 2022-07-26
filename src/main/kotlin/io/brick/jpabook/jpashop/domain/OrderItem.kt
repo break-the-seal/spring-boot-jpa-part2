@@ -4,7 +4,7 @@ import io.brick.jpabook.jpashop.domain.item.Item
 import javax.persistence.*
 
 @Entity
-class OrderItem {
+class OrderItem protected constructor() {
 
     @Id
     @GeneratedValue

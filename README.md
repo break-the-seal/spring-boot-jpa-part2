@@ -100,6 +100,8 @@ val items: MutableList<Item> = mutableListOf()
   - 물리명 적용
     - `spring.jpa.hibernate.naming.physical-strategy` 모든 논리명에 적용, 실제 테이블 적용(사내 룰로 정할 수 있음)
 
+<br>
+
 ## 📌 Section 4. 회원 도메인 개발
 
 ### 회원 기능 테스트
@@ -121,8 +123,15 @@ assertThrows<IllegalStateException> {
 - `url: jdbc:h2:mem:test` h2 메모리 방식으로 수행 가능(gradle 설정 후)
 - 하지만 이런 설정 없이도 기본적으로 spring boot는 인메모리 방식 h2 db를 지원해준다.
 
+<br>
+
 ## 📌 Section 6. 주문 도메인 개발
 
 - `CascadeType.ALL`: private owner 인 경우에만 사용
   - ex) `Order` - `OrderItem`, `Delivery`  
-  (Delivery는 Order말고 다른 곳에서 전혀 안쓰임)
+  (`Delivery`는 `Order`말고 다른 곳에서 전혀 안쓰임)
+- `OrderItem` 기본생성자는 protected 설정(아무데서나 생성자를 통한 생성하지 못하도록 방지)
+
+### 도메인 모델 패턴
+- 주문 서비스에서 주문과 주문 취소 메서드 비즈니스 로직을 엔티티에서 관리하고 있다.
+- 반대로 서비스 계층에서 대부분의 비즈니스 로직을 처리하는 것을 `트랜잭션 스크립트 패턴`이라고 한다.

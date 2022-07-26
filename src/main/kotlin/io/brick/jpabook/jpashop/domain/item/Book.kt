@@ -5,7 +5,7 @@ import javax.persistence.Entity
 
 @Entity
 @DiscriminatorValue("B")
-data class Book(
-    val artist: String,
-    val isbn: String
-): Item()
+class Book : Item() {
+    var artist: String? = null
+    var isbn: String? = null
+}

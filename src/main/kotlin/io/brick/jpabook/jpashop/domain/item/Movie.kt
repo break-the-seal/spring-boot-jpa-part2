@@ -5,7 +5,7 @@ import javax.persistence.Entity
 
 @Entity
 @DiscriminatorValue("M")
-data class Movie(
-    val director: String,
-    val actor: String
-): Item()
+class Movie : Item() {
+    var director: String? = null
+    var actor: String? = null
+}

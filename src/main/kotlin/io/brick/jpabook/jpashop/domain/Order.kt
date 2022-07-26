@@ -5,11 +5,11 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "orders")
-class Order {
+class Order protected constructor() {
     @Id
     @GeneratedValue
     @Column(name = "order_id")
-    var id: Long? = null
+    var id: Long = 0L
 
     // 연관관계 메서드 적용 //
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,7 +62,7 @@ class Order {
      * 주문 취소
      */
     fun cancel() {
-        if (delivery?.status == DeliveryStatus.COMP) {
+        if (delivery!!.status == DeliveryStatus.COMP) {
             throw IllegalStateException("이미 배송완료된 상품은 취소가 불가능합니다.")
         }
 

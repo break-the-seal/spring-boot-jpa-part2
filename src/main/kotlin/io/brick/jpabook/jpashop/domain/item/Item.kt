@@ -11,7 +11,7 @@ class Item {
     @Id
     @GeneratedValue
     @Column(name = "item_id")
-    var id: Long? = null
+    var id: Long = 0L
 
     var name: String = ""
 
