@@ -53,7 +53,6 @@ implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0")
 > - 이러면 persist할 때 Member, Team 각각 insert -> Member FK update 쿼리 추가해야 함
 > - Team entity에서 관리하지 않는 Member 테이블의 FK가 update되는 문제
 
-
 ### 엔티티 클래스 개발 1
 ```kotlin
 @OneToMany(mappedBy = "member")
@@ -68,7 +67,7 @@ val orders: MutableList<Order> = mutableListOf()
 val delivery: Delivery
 ```
 - `one to one`인 경우 주로 많이 사용되는 entity(`Order`)에다가 OneToOne 연관관계 주인 설정
-- 
+
 ### 엔티티 클래스 개발 2
 - 다대다 연관관계 매핑(실무에선 사용하지 말자)
 ```kotlin
