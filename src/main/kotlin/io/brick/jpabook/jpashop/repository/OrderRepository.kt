@@ -43,7 +43,7 @@ class OrderRepository(
             } else {
                 jpql += " and"
             }
-            jpql += " m.name = :name"
+            jpql += " m.name like :name"
         }
 
         var query = em.createQuery(jpql, Order::class.java)

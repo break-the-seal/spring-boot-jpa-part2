@@ -7,6 +7,7 @@ import io.brick.jpabook.jpashop.exception.NotFoundException
 import io.brick.jpabook.jpashop.repository.ItemRepository
 import io.brick.jpabook.jpashop.repository.MemberRepository
 import io.brick.jpabook.jpashop.repository.OrderRepository
+import io.brick.jpabook.jpashop.repository.OrderSearch
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -67,7 +68,7 @@ class OrderService(
     /**
      * 검색
      */
-//    fun findOrders(orderSearch: OrderSearch): List<Order> {
-//        return orderRepository.findAll(orderSearch)
-//    }
+    fun findOrders(orderSearch: OrderSearch): List<Order> {
+        return orderRepository.findAllByString(orderSearch)
+    }
 }
