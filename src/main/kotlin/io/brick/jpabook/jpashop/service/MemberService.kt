@@ -40,4 +40,10 @@ class MemberService(
         return memberRepository.findOne(memberId)
             ?: throw NotFoundException("존재하지 않는 회원입니다. ${memberId}")
     }
+
+    @Transactional
+    fun update(id: Long, name: String) {
+        val findMember = findOne(id)
+        findMember.name = name  // 변경감지 이용
+    }
 }

@@ -1,6 +1,7 @@
 package io.brick.jpabook.jpashop.domain
 
 import javax.persistence.*
+import javax.validation.constraints.NotEmpty
 
 @Entity
 class Member {
@@ -9,6 +10,7 @@ class Member {
     @Column(name = "member_id")
     var id: Long = 0L
 
+    @NotEmpty
     var name: String = ""
 
     @Embedded
