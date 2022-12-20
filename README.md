@@ -8,7 +8,7 @@
 
 ### 회원 등록 API
 
-##### request dto와 entity를 분리하는 이유
+#### request dto와 entity를 분리하는 이유
 
 - Member Entity의 name 필드에 `@NotEmpty` validation 적용  
 presentation layer의 요청데이터 검증을 위해 entity에 validation 기능까지 적용하는 것은 좋지 못하다.  
@@ -22,3 +22,14 @@ entity 스펙이 변경되어도 API 스펙은 변경되어서는 안된다.
 서비스 레이어에서 수정 api 작성할 때 되도록 반환값을 없앤다. (혹은 id 값이라도 반환한다.)  
 수정 메소드는 요청 데이터를 가지고 데이터를 변경해주는 역할이지 수정된 Entity를 반환하면 조회기능까지 포함되는 것  
 그래서 가급적이면 아예 아무것도 반환하지 않는 것이 좋다.
+
+<br>
+
+### 회원 조회 API
+
+- Entity 혹은 List<Entity> 형태로 반환하는 것은 좋지 않다.
+  - List 형식 반환은 json에서는 array 형태로 반환(스펙 추가에 대한 유연성이 떨어진다.)
+- Entity 그대로 노출하는 것도 좋지 않다.
+  - Entity에다가 @JsonIgnore 등 적용하는 것도 말이 안됨(api 스펙마다 다 다르다.)
+- api 스펙은 말 그대로 필요한 내용만 노출하고 응답해야한다.
+- 유지보수 입장에서도 dto 반환이 훨씬 좋다.

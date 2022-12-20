@@ -1,12 +1,9 @@
 package io.brick.jpabook.jpashop.domain.api
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import io.brick.jpabook.jpashop.domain.Member
 import io.brick.jpabook.jpashop.service.MemberService
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 import javax.validation.constraints.NotEmpty
 
@@ -14,6 +11,12 @@ import javax.validation.constraints.NotEmpty
 class MemberApiController(
     private val memberService: MemberService,
 ) {
+    @GetMapping("/api/v1/members")
+    fun membersV1(): Result<List<MemberDto>> {
+        val result = memberService.findMembers().map { MemberDto(it.name) }
+        return Result.data(result).count(result.size)
+    }
+
     @PostMapping("/api/v1/members")
     fun saveMemberV1(@RequestBody @Valid member: Member): CreateMemberResponse {
         val id = memberService.join(member)
@@ -55,5 +58,28 @@ data class UpdateMemberRequest(
 
 data class UpdateMemberResponse(
     val id: Long,
+    val name: String
+)
+
+class Result<T> (
+    val data: T? = null
+) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    var count: Int? = null
+        private set
+
+    companion object {
+        fun <T> data(data: T): Result<T> {
+            return Result(data = data)
+        }
+    }
+
+    fun count(count: Int): Result<T> {
+        this.count = count
+        return this
+    }
+}
+
+data class MemberDto(
     val name: String
 )
