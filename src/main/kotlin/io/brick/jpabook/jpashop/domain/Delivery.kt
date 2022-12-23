@@ -1,5 +1,6 @@
 package io.brick.jpabook.jpashop.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -9,6 +10,7 @@ class Delivery {
     @Column(name = "delivery_id")
     val id: Long = 0L
 
+    @JsonIgnore
     @OneToOne(mappedBy = "delivery", fetch = FetchType.LAZY)
     var order: Order? = null
 

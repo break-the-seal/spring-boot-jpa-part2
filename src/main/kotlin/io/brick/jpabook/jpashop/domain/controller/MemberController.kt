@@ -36,10 +36,10 @@ class MemberController(
             zipcode = form.zipcode!!
         )
 
-        val member = Member().apply {
-            this.name = form.name!!
-            this.address = address
-        }
+        val member = Member.createMember(
+            name = form.name!!,
+            address = address
+        )
 
         memberService.join(member)
 

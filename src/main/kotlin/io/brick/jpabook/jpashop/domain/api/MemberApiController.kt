@@ -25,9 +25,7 @@ class MemberApiController(
 
     @PostMapping("/api/v2/members")
     fun saveMemberV2(@RequestBody @Valid request: CreateMemberRequest): CreateMemberResponse {
-        val id = memberService.join(Member().apply {
-            this.name = request.name!!
-        })
+        val id = memberService.join(Member.createMember(name = request.name!!))
         return CreateMemberResponse(id)
     }
 

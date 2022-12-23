@@ -33,3 +33,103 @@ entity 스펙이 변경되어도 API 스펙은 변경되어서는 안된다.
   - Entity에다가 @JsonIgnore 등 적용하는 것도 말이 안됨(api 스펙마다 다 다르다.)
 - api 스펙은 말 그대로 필요한 내용만 노출하고 응답해야한다.
 - 유지보수 입장에서도 dto 반환이 훨씬 좋다.
+
+<br>
+
+## :pushpin: API 개발 고급 - 지연 로딩과 조회 성능 최적화
+
+### 엔티티를 직접 노출
+```kotlin
+@GetMapping("/api/v1/simple-orders")
+fun ordersV1(): List<Order> {
+    return orderRepository.findAllByString(OrderSearch())
+}
+```
+- 위 방식대로 Order Entity를 그대로 반환하면 `StackOverflowException` 에러 발생한다.
+- Order entity에는 연관관계로 있는 `Delivery`, `OrderItem`, `Member` entity에도 Order가 연결되어 있기 때문에  
+무한 순환하게 되어 발생하는 에러다.
+
+이러한 이유로 `Delivery`, `OrderItem`, `Member` entity들에 Order 부분을 `@JsonIgnore` 처리해서 돌려보면  
+다음과 같은 에러가 나온다.
+```text
+org.springframework.http.converter.HttpMessageConversionException:
+Type definition error: [simple type, class org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor];
+nested exception is com.fasterxml.jackson.databind.exc.InvalidDefinitionException: 
+No serializer found for class org.hibernate.proxy.pojo.bytebuddy.ByteBuddyInterceptor and no properties discovered to create BeanSerializer 
+(to avoid exception, disable SerializationFeature.FAIL_ON_EMPTY_BEANS)
+```
+- Order의 Member가 LAZY로 연결되어 있다. 그래서 Order를 DB에서 가져올 때 Member는 조회하지 않고 Proxy 형태로 가져오게 된다.
+- Proxy 가져올 때 사용되는 것이 `bytebuddy` 기술이다. (Member 필드에 `ByteBuddyInterceptor` 형태로 들어가 있음)
+- jackson library에서 json 형태로 변형할 때 Order의 Member 접근하려고 하는데 `Member` 형태가 아니라 `ByteBuddyInterceptor`로 되어 있어서 발생한 에러
+
+```kt
+implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+```
+위의 문제를 해결하기 위해서 Hibernate5 모듈이 필요
+```kt
+//SpringBootJpaApplication
+@SpringBootApplication
+class SpringBootJpaApplication {
+  @Bean
+  fun hibernate5Module(): Hibernate5Module {
+    return Hibernate5Module()
+  }
+}
+```
+- Hibernate5 모듈을 받아서 Bean을 설정해준다.
+- 기본전략은 LAZY loading이면 무시하는 것인데 다르게 설정가능
+  - 그래서 위의 설정만으로 api 호출하면 lazy에 대해서는 null이 나오는 것을 볼 수 있다.
+```kotlin
+@Bean
+fun hibernate5Module(): Hibernate5Module {
+    return Hibernate5Module().apply { 
+        this.configure(Hibernate5Module.Feature.FORCE_LAZY_LOADING, true)
+    }
+}
+```
+- 위 방식대로 하면 LAZY 설정되어 있는 연관관계 필드에 대해서 LAZY 방식으로 조회하게 된다.
+- 이렇게 설정하면 lazy 방식으로 연관관계 필드에 대해서 전부 호출해서 값을 내려보내는 것을 알 수 있다.
+
+> 하지만 애초에 Entity 자체를 API response로 내려보내주는 것 자체가 말이 안된다. (위 내용 참고)  
+> 그리고 위의 Hibernate5Module 사용해서 따로 설정하는 것도 좋지는 않음
+
+```kt
+@GetMapping("/api/v1/simple-orders")
+fun ordersV1(): List<Order> {
+    val orders = orderRepository.findAllByString(OrderSearch())
+    orders.forEach {
+        it.member?.name // lazy 강제 초기화
+        it.delivery?.address // lazy 강제 초기화
+    }
+    
+    return orders
+}
+```
+Hibernate5Module configure 내용 주석하고 위에 내용처럼 Order에서 원하는 데이터에 대해서만 초기화를 시켜서 response를 보낼 수 있다.  
+하지만 이 방법도 좋지는 않음  
+api response 스펙도 좋지 않다.
+
+#### EAGER로 성능 최적화 할 수 있지 않을까?(N+1 문제 해결 가능?) - 중요
+```kotlin
+@ManyToOne(fetch = FetchType.EAGER)
+@JoinColumn(name = "member_id")
+var member: Member? = null
+    set(member) {
+        field = member!!
+        member.orders.add(this)
+    }
+```
+- 위에서 api에 lazy 강제 호출하지 않고 원하는 데이터를 EAGER로 바꾸면 성능 최적화할 수 있지 않을까 생각 가능
+  - lazy 강제 호출하는 순간 N+1 발생하기 때문(member 관련 쿼리가 또 날라가게 되기에)
+- 하지만 EAGER로 했다고 여기서는 N+1 문제가 해결되지 않는다.
+  - 이유는 `orderRepository.findAllByString(OrderSearch())` 이게 내부적으로 JPQL을 사용하기 때문
+  - JPQL에 의해 order 내용만 selection 되므로 Order Entity만 반환받게 된다.
+  - **그 때 Member는 EAGER로 설정되어 있어서 추가로 쿼리를 날려서 member 내용만 따로 db에서 조회하게 된다.**
+- 또한 EAGER로 했을 때 다른 곳에서 Order entity를 사용하려 할 때에도 큰 문제 발생 가능
+  - EAGER로 강제로 가져오기 때문에 원치 않은 Member 까지 계속 조회를 하게 된다.
+- EAGER를 통한 성능 최적화
+  - `em.find(id)`로 가져올 때에는 EAGER 하면 join 쿼리로 한방에 가져오게 된다.
+- 만약 성능 최적화를 하고 싶다면 `fetch join`으로 할 것을 권장
+
+> 결국 Hibernate5Module 사용하기보다 DTO 형태로 원하는 데이터만 Entity에서 뽑아서 반환하는 것이 좋다.
+
