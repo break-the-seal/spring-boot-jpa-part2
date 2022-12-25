@@ -133,3 +133,53 @@ var member: Member? = null
 
 > 결국 Hibernate5Module 사용하기보다 DTO 형태로 원하는 데이터만 Entity에서 뽑아서 반환하는 것이 좋다.
 
+### DTO로 변환
+
+```kotlin
+@GetMapping("/api/v1/simple-orders")
+fun ordersV1(): List<SimpleOrderDto> {
+    val orders = orderRepository.findAllByString(OrderSearch())
+
+    return orders.map {
+        SimpleOrderDto.of(it)
+    }
+}
+
+// SimpleOrderDto
+companion object {
+  fun of(order: Order): SimpleOrderDto {
+    return SimpleOrderDto(
+      order.id,
+      order.member!!.name,
+      order.orderDate!!,
+      order.status!!,
+      order.delivery!!.address!!
+    )
+  }
+}
+```
+- 이렇게 하면 orders 데이터가 2개인 경우 총 5개의 쿼리가 날라가게 된다.
+- order의 member, delivery가 LAZY로 묶여있음
+- 그런 상황에서 stream map으로 가져오게 되는데 proxy lazy loading으로 동작
+- 최초 select orders절 1개
+- 각 order에 대해서 select member, delivery 2개
+- **1 + 4 쿼리 실행 => 이것을 `N+1 문제`라고 한다.**  
+(이 상황에서는 1 + N + N / member, delivery)
+
+### fetch join 최적화
+
+```kotlin
+@GetMapping("/api/v3/simple-orders")
+fun ordersV3(): List<SimpleOrderDto> {
+  return orderRepository.findAllWithMemberDelivery().map {
+    SimpleOrderDto.of(it)
+  }
+}
+```
+- JPQL의 fetch join 기능을 사용하면 위에서 5번 발생했던 쿼리가 한 번 호출로 줄일 수 있음
+- LAZY 설정되어 있어도 fetch join으로 묶여있으면 해당 Entity는 진짜 Entity로 해서 가져옴
+- 실제 쿼리는 inner join 한 방 쿼리로 가져옴
+- 실무에서 정말 많이 사용하는 기법(fetch join 너무 중요, **90%의 JPA 관련 문제는 여기서 발생**)
+
+### JPA에서 DTO로 바로 조회
+

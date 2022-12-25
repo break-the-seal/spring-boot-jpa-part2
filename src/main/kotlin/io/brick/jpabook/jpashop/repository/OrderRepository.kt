@@ -88,4 +88,27 @@ class OrderRepository(
 
         return query.resultList
     }
+
+    fun findAllWithMemberDelivery(): List<Order> {
+        // fetch join 이용 -> LAZY proxy 설정되어 있어도 proxy 없이 진짜 Entity를 가져옴
+        return em.createQuery(
+            """
+                |SELECT o FROM Order o
+                | join fetch o.member m
+                | join fetch o.delivery d
+            """.trimMargin(),
+            Order::class.java
+        ).resultList
+    }
+
+    fun findAllWithDtos(): List<OrderSimpleQueryDto> {
+        return em.createQuery(
+            """
+                |SELECT o FROM Order o
+                | join fetch o.member m
+                | join fetch o.delivery d
+            """.trimMargin(),
+            OrderSimpleQueryDto::class.java
+        ).resultList
+    }
 }
