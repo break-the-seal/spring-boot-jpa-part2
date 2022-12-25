@@ -4,6 +4,7 @@ import io.brick.jpabook.jpashop.domain.Order
 import io.brick.jpabook.jpashop.repository.OrderRepository
 import io.brick.jpabook.jpashop.repository.OrderSearch
 import io.brick.jpabook.jpashop.repository.OrderSimpleQueryDto
+import io.brick.jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 class OrderSimpleApiController(
-    private val orderRepository: OrderRepository
+    private val orderRepository: OrderRepository,
+    private val orderSimpleQueryRepository: OrderSimpleQueryRepository
 ) {
     /**
      * Entity 그대로 반환
@@ -58,8 +60,6 @@ class OrderSimpleApiController(
 
     @GetMapping("/api/v4/simple-orders")
     fun ordersV4(): List<OrderSimpleQueryDto> {
-        return orderRepository.findAllWithMemberDelivery().map {
-            OrderSimpleQueryDto.of(it)
-        }
+        return orderSimpleQueryRepository.findOrderDtos()
     }
 }

@@ -183,3 +183,28 @@ fun ordersV3(): List<SimpleOrderDto> {
 
 ### JPA에서 DTO로 바로 조회
 
+```kotlin
+return em.createQuery(
+    "SELECT new io.brick.jpabook.jpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address) " +
+            "FROM Order o " +
+            "join o.member m " +
+            "join o.delivery d",
+    OrderSimpleQueryDto::class.java
+).resultList
+```
+- 여기서 join fetch 와 차이점은 select 절이 JPQL에서 지정한 필드에 대해서만 projection 한다
+- Dto로 반환하게끔 JPQL을 작성한 경우 join fetch로 하면 에러 발생한다.
+
+> - fetch join  
+> 엔티티 그래프를 한꺼번에 같이 조회하기 위해 사용하는 기능
+> - JPQL Dto 반환  
+> select new를 통해 엔티티가 아닌 DTO를 조회하기 때문에 fetch join과 어긋남
+
+- Dto 반환 JPQL은 활용성이 떨어짐(Dto 반환으로 고정되어 있음)
+- 성능 최적화 측면에서 아주 쪼금 더 좋다고 할 수는 있지만 Entity 반환이 범용성이 좋아서 이대로 사용하는 것이 좋다.
+
+> - 정리  
+> 우선 Entity -> Dto 변환 방식 사용  
+> 필요시 fetch join으로 성능 최적  
+> 그래도 안되면 Dto 직접 조회  
+> 최후에는 네이티브 쿼리, Spring JDBC Template 사용

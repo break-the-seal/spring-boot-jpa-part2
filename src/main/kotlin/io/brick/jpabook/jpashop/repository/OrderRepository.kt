@@ -100,15 +100,4 @@ class OrderRepository(
             Order::class.java
         ).resultList
     }
-
-    fun findAllWithDtos(): List<OrderSimpleQueryDto> {
-        return em.createQuery(
-            """
-                |SELECT o FROM Order o
-                | join fetch o.member m
-                | join fetch o.delivery d
-            """.trimMargin(),
-            OrderSimpleQueryDto::class.java
-        ).resultList
-    }
 }
