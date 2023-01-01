@@ -6,7 +6,9 @@ import io.brick.jpabook.jpashop.domain.OrderItem
 import io.brick.jpabook.jpashop.domain.OrderStatus
 import io.brick.jpabook.jpashop.repository.OrderRepository
 import io.brick.jpabook.jpashop.repository.OrderSearch
+import mu.KLogging
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDateTime
 
@@ -14,6 +16,8 @@ import java.time.LocalDateTime
 class OrderApiController(
     private val orderRepository: OrderRepository,
 ) {
+    companion object: KLogging()
+
     @GetMapping("/api/v1/orders")
     fun orderV1(): List<Order> {
         val orders = orderRepository.findAllByString(OrderSearch())
@@ -34,6 +38,25 @@ class OrderApiController(
         val orders = orderRepository.findAllByString(OrderSearch())
         // LAZY proxy 초기화
         return orders.map {
+            OrderDto.of(it)
+        }
+    }
+
+    @GetMapping("/api/v3/orders")
+    fun orderV3(): List<OrderDto> {
+        return orderRepository.findAllWithItem().map {
+            logger.info { "order ref = $it / id = ${it.id}" }
+            OrderDto.of(it)
+        }
+    }
+
+    @GetMapping("/api/v3.1/orders")
+    fun orderV3_page(
+        @RequestParam(value = "offset", defaultValue = "0") offset: Int,
+        @RequestParam(value = "limit", defaultValue = "0") limit: Int,
+    ): List<OrderDto> {
+        return orderRepository.findAllWithMemberDelivery(offset, limit).map {
+            logger.info { "order ref = $it / id = ${it.id}" }
             OrderDto.of(it)
         }
     }

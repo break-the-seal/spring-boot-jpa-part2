@@ -1,9 +1,11 @@
 package io.brick.jpabook.jpashop.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import org.hibernate.annotations.BatchSize
 import javax.persistence.*
 import javax.validation.constraints.NotEmpty
 
+@BatchSize(size = 100)
 @Entity
 class Member protected constructor(
     name: String,

@@ -100,4 +100,31 @@ class OrderRepository(
             Order::class.java
         ).resultList
     }
+
+    fun findAllWithItem(): List<Order> {
+        return em.createQuery(
+            """
+                |select distinct o from Order o
+                |    join fetch o.member m
+                |    join fetch o.delivery d
+                |    join fetch o.orderItems oi
+                |    join fetch oi.item i
+            """.trimMargin(),
+            Order::class.java
+        ).resultList
+    }
+
+    fun findAllWithMemberDelivery(offset: Int, limit: Int): List<Order> {
+        return em.createQuery(
+            """
+                |SELECT o FROM Order o
+                | join fetch o.member m
+                | join fetch o.delivery d
+            """.trimMargin(),
+            Order::class.java
+        )
+            .setFirstResult(offset)
+            .setMaxResults(limit)
+            .resultList
+    }
 }
