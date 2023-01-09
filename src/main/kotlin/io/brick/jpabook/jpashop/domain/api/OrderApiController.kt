@@ -68,6 +68,11 @@ class OrderApiController(
     fun orderV4(): List<OrderQueryDto> {
         return orderQueryRepository.findOrderQueryDtos()
     }
+
+    @GetMapping("/api/v5/orders")
+    fun orderV5(): List<OrderQueryDto> {
+        return orderQueryRepository.findAllByDto_optimization()
+    }
 }
 
 data class OrderDto(

@@ -7,6 +7,7 @@ import javax.persistence.EntityManager
 class OrderQueryRepository(
     private val em: EntityManager,
 ) {
+    // 결국 N+1 발생 (order 조회 + 각 order에 대한 orderItem 조회)
     fun findOrderQueryDtos(): List<OrderQueryDto> {
         val orders = findOrders().onEach {
             it.apply {
@@ -41,6 +42,32 @@ class OrderQueryRepository(
             OrderItemQueryDto::class.java
         )
             .setParameter("orderId", orderId)
+            .resultList
+    }
+
+    // 쿼리 두 번 나가야 한다.
+    fun findAllByDto_optimization(): List<OrderQueryDto> {
+        val orders = findOrders()
+
+        val orderItemMap = findAllOrderItemsInQuery(orders.map { it.orderId })
+            .groupBy { it.orderId }
+
+        return orders.onEach {
+            it.orderItems = orderItemMap[it.orderId] ?: emptyList()
+        }
+    }
+
+    private fun findAllOrderItemsInQuery(orderIds: List<Long>): List<OrderItemQueryDto> {
+        return em.createQuery(
+            """
+                    |select new io.brick.jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)
+                    |from OrderItem oi
+                    | join oi.item i
+                    |where oi.order.id in :orderIds
+                """.trimMargin(),
+            OrderItemQueryDto::class.java
+        )
+            .setParameter("orderIds", orderIds)
             .resultList
     }
 

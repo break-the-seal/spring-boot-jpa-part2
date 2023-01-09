@@ -128,5 +128,27 @@ OneToMany를 가져오는데 있어서 N+1 문제가 발생(LAZY)
 
 <br>
 
-### JPA에서 DTO 직접 조회(JPQL)
+### JPA에서 DTO 직접 조회(JPQL) & 컬렉션 조회 최적화
 
+- `OrderQueryRepository.findOrderQueryDtos()` 메소드 내용 참고
+- JPQL에서 DTO 직접 조회
+- 여기서 N+1 문제는 해결하지 못한 상황
+  - order 조회 후 각 order에 대한 orderItem 조회
+
+#### 컬렉션 조회 최적화
+- 각 order에 대한 orderItem 조회 시 in query 사용(order_id collection 사용)
+```kotlin
+return em.createQuery(
+    """
+            |select new io.brick.jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)
+            |from OrderItem oi
+            | join oi.item i
+            |where oi.order.id in :orderIds
+        """.trimMargin(),
+    OrderItemQueryDto::class.java
+)
+    .setParameter("orderIds", orderIds)
+    .resultList
+```
+- 이렇게 하면 order 조회시 두 번의 쿼리를 사용해서 조회 가능
+  - order 조회 & orderItem in query 조회

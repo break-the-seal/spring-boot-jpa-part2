@@ -21,7 +21,7 @@ class Order protected constructor() {
         }
 
     // Cascade: persist(order) -> orderItem persist 같이 진행해준다.
-    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var orderItems: MutableList<OrderItem> = ArrayList()
 
     // 연관관계 메서드 //
