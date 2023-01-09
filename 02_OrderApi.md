@@ -114,7 +114,7 @@ class Member protected constructor(...)
 - `@ManyToOne`에서는 연관관계 대상이 되는 Entity class 단에 설정(Order 입장에서는 Member)
 - `@OneToMany`에서는 해당 필드에다가 설정
 
-### 정리
+#### 정리
 OneToMany를 가져오는데 있어서 N+1 문제가 발생(LAZY)  
  - fetch join으로 OneToMany 연관관계 대상을 쿼리 하나로 가져옴(장점)
  - 하지만 데이터 중복 문제(데이터 뻥튀기 문제), 페이징 처리 불가 문제 발생  
@@ -125,3 +125,8 @@ OneToMany를 가져오는데 있어서 N+1 문제가 발생(LAZY)
  - 즉 batch size 설정을 잘하면 `N + 1` > `1 + 1`도 가능(물론 batch size를 넘어가는 데이터 량이면 쿼리 개수 증가)
  - fetch join으로 발생했던 데이터 뻥튀기 문제도 해결 가능 > **DB 데이터 전송량 감소**
    - ex. Order 1개에 OrderItem 100개 연결되어 있으면 Order 데이터도 100개가 조회되는 중복문제 발생
+
+<br>
+
+### JPA에서 DTO 직접 조회(JPQL)
+

@@ -6,6 +6,8 @@ import io.brick.jpabook.jpashop.domain.OrderItem
 import io.brick.jpabook.jpashop.domain.OrderStatus
 import io.brick.jpabook.jpashop.repository.OrderRepository
 import io.brick.jpabook.jpashop.repository.OrderSearch
+import io.brick.jpabook.jpashop.repository.order.query.OrderQueryDto
+import io.brick.jpabook.jpashop.repository.order.query.OrderQueryRepository
 import mu.KLogging
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -15,6 +17,7 @@ import java.time.LocalDateTime
 @RestController
 class OrderApiController(
     private val orderRepository: OrderRepository,
+    private val orderQueryRepository: OrderQueryRepository,
 ) {
     companion object: KLogging()
 
@@ -59,6 +62,11 @@ class OrderApiController(
             logger.info { "order ref = $it / id = ${it.id}" }
             OrderDto.of(it)
         }
+    }
+
+    @GetMapping("/api/v4/orders")
+    fun orderV4(): List<OrderQueryDto> {
+        return orderQueryRepository.findOrderQueryDtos()
     }
 }
 

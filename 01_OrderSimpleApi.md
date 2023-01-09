@@ -194,8 +194,8 @@ return em.createQuery(
 - Dto 반환 JPQL은 활용성이 떨어짐(Dto 반환으로 고정되어 있음)
 - 성능 최적화 측면에서 아주 쪼금 더 좋다고 할 수는 있지만 Entity 반환이 범용성이 좋아서 이대로 사용하는 것이 좋다.
 
-> - 정리  
-    > 우선 Entity -> Dto 변환 방식 사용  
-    > 필요시 fetch join으로 성능 최적  
-    > 그래도 안되면 Dto 직접 조회  
-    > 최후에는 네이티브 쿼리, Spring JDBC Template 사용
+> 정리
+> - 우선 Entity -> Dto 변환 방식 사용
+> - 필요시 fetch join으로 성능 최적
+> - 그래도 안되면 Dto 직접 조회
+> - 최후에는 네이티브 쿼리, Spring JDBC Template 사용
